@@ -36,6 +36,19 @@ CREATE TABLE IF NOT EXISTS quiz_history (
     created_at TEXT NOT NULL DEFAULT (datetime('now')),
     FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
 );
+
+CREATE TABLE IF NOT EXISTS answer_reports (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    subject TEXT NOT NULL DEFAULT '',
+    topic_name TEXT NOT NULL,
+    question_type TEXT NOT NULL CHECK (question_type IN ('mcq', 'short')),
+    question_text TEXT NOT NULL,
+    ai_answer TEXT NOT NULL DEFAULT '',
+    user_note TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now')),
+    FOREIGN KEY (user_id) REFERENCES users (user_id) ON DELETE CASCADE
+);
 """
 
 
@@ -166,7 +179,35 @@ class Database:
                     "mistake_count = mistake_count + 1, "
                     "last_seen_at = datetime('now')",
                     (user_id, subject, topic_name),
-                )
+            )
+            await conn.commit()
+
+    async def record_answer_report(
+        self,
+        user_id: int,
+        subject: str,
+        topic_name: str,
+        question_type: str,
+        question_text: str,
+        ai_answer: str,
+        user_note: str,
+    ) -> None:
+        async with self._connect() as conn:
+            await conn.execute(
+                "INSERT INTO answer_reports "
+                "(user_id, subject, topic_name, question_type, question_text, "
+                " ai_answer, user_note) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (
+                    user_id,
+                    subject,
+                    topic_name,
+                    question_type,
+                    question_text,
+                    ai_answer,
+                    user_note,
+                ),
+            )
             await conn.commit()
 
     async def get_topic_stats(

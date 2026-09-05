@@ -282,6 +282,134 @@ def _review_embed(items: list[dict[str, Any]]) -> discord.Embed:
     return embed
 
 
+def _reported_ai_answer(question: dict[str, Any]) -> str:
+    """Human-readable version of the AI's expected answer for a report."""
+    explanation = str(question.get("model_answer") or "").strip()
+    question_type = str(question.get("type") or "short").lower()
+    if question_type == "mcq":
+        parts = []
+        correct = _mcq_correct_text(question)
+        if correct != "?":
+            parts.append(f"Correct answer: {correct}")
+        if explanation:
+            parts.append(f"Explanation: {explanation}")
+        return " | ".join(parts)
+    return explanation or "No expected answer was provided."
+
+
+class _FlagQuestionModal(discord.ui.Modal):
+    """Collects why the student believes the AI's expected answer is wrong."""
+
+    note = discord.ui.TextInput(
+        label="What is wrong, or what should the answer be?",
+        style=discord.TextStyle.paragraph,
+        placeholder="e.g. Q2 is actually about subnet masks — the expected answer should be B.",
+        max_length=1000,
+        required=True,
+    )
+
+    def __init__(
+        self,
+        bot: commands.Bot,
+        user_id: int,
+        subject: str,
+        number: int,
+        question: dict[str, Any],
+    ) -> None:
+        super().__init__(title=f"Flag question {number} answer")
+        self.bot = bot
+        self.user_id = user_id
+        self.subject = subject
+        self.question = question
+
+    async def on_submit(self, interaction: discord.Interaction) -> None:
+        question = self.question
+        question_type = str(question.get("type") or "short").lower()
+        if question_type != "mcq":
+            question_type = "short"
+        try:
+            await self.bot.db.record_answer_report(
+                self.user_id,
+                self.subject,
+                str(question.get("topic") or "").strip(),
+                question_type,
+                str(question.get("question") or "").strip(),
+                _reported_ai_answer(question),
+                self.note.value.strip(),
+            )
+        except Exception:
+            await interaction.response.send_message(
+                "Could not save the flag right now; please try again.",
+                ephemeral=True,
+            )
+            return
+        await interaction.response.send_message(
+            "Thanks — this answer was flagged for review. "
+            "It is saved for a later look and does not change your saved score.",
+            ephemeral=True,
+        )
+
+
+class _FlagAnswerButton(discord.ui.Button):
+    """One button per question on the end-of-quiz answer key."""
+
+    def __init__(
+        self,
+        bot: commands.Bot,
+        user_id: int,
+        subject: str,
+        number: int,
+        question: dict[str, Any],
+    ) -> None:
+        super().__init__(
+            label=f"Flag Q{number}",
+            style=discord.ButtonStyle.secondary,
+        )
+        self.bot = bot
+        self.user_id = user_id
+        self.subject = subject
+        self.number = number
+        self.question = question
+
+    async def callback(self, interaction: discord.Interaction) -> None:
+        await interaction.response.send_modal(
+            _FlagQuestionModal(
+                self.bot,
+                self.user_id,
+                self.subject,
+                self.number,
+                self.question,
+            )
+        )
+
+
+class _FlagAnswersView(discord.ui.View):
+    """Flag buttons attached to the answer-key message."""
+
+    def __init__(
+        self,
+        bot: commands.Bot,
+        user_id: int,
+        subject: str,
+        questions: list[dict[str, Any]],
+    ) -> None:
+        super().__init__(timeout=600)
+        self.message: discord.Message | None = None
+        for number, question in enumerate(questions, start=1):
+            self.add_item(
+                _FlagAnswerButton(bot, user_id, subject, number, question)
+            )
+
+    async def on_timeout(self) -> None:
+        for child in self.children:
+            child.disabled = True
+        if self.message is not None:
+            try:
+                await self.message.edit(view=self)
+            except (discord.HTTPException, discord.NotFound):
+                pass
+
+
 class Quiz(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
@@ -465,7 +593,18 @@ class Quiz(commands.Cog):
         summary.set_footer(text="Run /stats to see updated weakness and accuracy.")
         await interaction.followup.send(embed=summary)
         if session["review"]:
-            await interaction.followup.send(embed=_review_embed(session["review"]))
+            view = _FlagAnswersView(
+                self.bot,
+                interaction.user.id,
+                session["subject"],
+                session["questions"],
+            )
+            message = await interaction.followup.send(
+                embed=_review_embed(session["review"]),
+                view=view,
+            )
+            view.message = message
+            asyncio.create_task(view.wait())
 
     async def _wait_for_typed_answer(
         self, interaction: discord.Interaction, channel: discord.abc.Messageable

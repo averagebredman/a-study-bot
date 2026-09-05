@@ -99,6 +99,26 @@ class DatabaseTest(unittest.IsolatedAsyncioTestCase):
             await self.db.get_latest_subject(3), "Math"
         )
 
+    async def test_answer_report_is_saved(self) -> None:
+        await self.db.ensure_user(9, "dan")
+        await self.db.record_answer_report(
+            9,
+            "ICT",
+            "Networking",
+            "mcq",
+            "Which protocol is used for email?",
+            "Correct answer: C. SMTP | Explanation: SMTP sends mail.",
+            "The expected answer should be B: POP3 retrieves, not sends.",
+        )
+        async with self.db._connect() as conn:
+            rows = await conn.execute_fetchall(
+                "SELECT user_id, topic_name, question_type, user_note "
+                "FROM answer_reports"
+            )
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["topic_name"], "Networking")
+        self.assertTrue("POP3" in rows[0]["user_note"])
+
     async def test_migrates_legacy_schema(self) -> None:
         path = Path(self._tmpdir.name) / "legacy.db"
         conn = sqlite3.connect(path)

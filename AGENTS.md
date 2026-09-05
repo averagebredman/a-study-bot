@@ -56,6 +56,9 @@ be received.
   DeepSeek. After each question (and again in an end-of-quiz answer key) the bot shows the
   correct/expected answer. Typed answers require the **Message Content intent** enabled
   in the Discord developer portal.
+- The end-of-quiz answer key has **Flag Q1..Q3** buttons. Clicking one opens a short form
+  and saves the user's objection to the `answer_reports` table (`record_answer_report()`)
+  for later review; it does not alter quiz history or stats.
 - `/quiz` and `/stats` accept an optional `subject` choice; when omitted, `/quiz` uses the
   most recently analyzed subject and `/stats` shows a per-subject summary.
 - AI providers return JSON; parse it only through `extract_json()` in
