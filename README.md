@@ -84,13 +84,13 @@ sudo chown 1000:1000 data    # only needed if your user is not UID 1000
 Docker Desktop on Windows/macOS handles this automatically. Change where the
 database lives with the optional `DB_PATH` variable.
 
-### Anywhere else
+### Anything works
 
 The bot is a plain Python app, so any always-on host works, for instance a VPS, a cloud
 instance, a Raspberry Pi at home, or a container platform. Discord bots need to
 stay connected, so pick something that runs 24/7 rather than a server that
-sleeps. The two things you must bring are the Discord bot token and the
-OpenRouter API key; both are configured purely through environment variables.
+sleeps. This has been tested and running currently on a 2017 Fujitsu Lifebook with 
+an Intel Core i3-7100U on OpenMediaVault found 3 years after being under the bed of the author's dad.
 
 ## Commands
 
