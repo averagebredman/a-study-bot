@@ -7,14 +7,10 @@ quizzes on exactly those weak spots — and tracks how your accuracy improves
 over time.
 
 Anyone can host their own copy: it just needs your own Discord bot token and an
-[OpenRouter](https://openrouter.ai) API key. All AI calls are billed to *your*
-OpenRouter account, so there is no shared service to maintain.
+[OpenRouter](https://openrouter.ai) API key. 
 
 ## Features
 
-- **`/analyze`** — upload one page image of a marked paper; the AI (via
-  OpenRouter) names the weak syllabus topics with evidence. You review and
-  deselect anything it got wrong before anything is saved.
 - **"Analyze Paper"** (message context menu) — right-click any message with
   attachments and analyze all its images as one multi-page paper.
 - **`/quiz`** — a 3-question quiz on your saved weak topics. Multiple-choice
@@ -23,7 +19,10 @@ OpenRouter account, so there is no shared service to maintain.
   in an end-of-quiz answer key.
 - **`/stats`** — per-topic weakness counts and quiz accuracy.
 - Data is stored per Discord user in SQLite (`data/bot.db` by default), and
-  subjects stay separate (`Math`, `M2`, `ICT`, `Physics`, ...).
+  subjects stay separate (`Math`, `English`, `Chemistry`, `Physics`, ...).
+- **`/analyze`** — upload one page image of a marked paper; the AI (via
+  OpenRouter) names the weak syllabus topics with evidence.
+  Note: This function only works on **ONE** image. Analyze Paper function should be used for multiple images.
 
 Models are selected in `services/ai_client.py`: Qwen's vision model reads
 papers, and DeepSeek generates quizzes and grades typed answers. Both are
@@ -85,7 +84,7 @@ database lives with the optional `DB_PATH` variable.
 
 ### Anywhere else
 
-The bot is a plain Python app, so any always-on host works — a VPS, a cloud
+The bot is a plain Python app, so any always-on host works, for instance a VPS, a cloud
 instance, a Raspberry Pi at home, or a container platform. Discord bots need to
 stay connected, so pick something that runs 24/7 rather than a server that
 sleeps. The two things you must bring are the Discord bot token and the
