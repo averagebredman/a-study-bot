@@ -21,7 +21,7 @@ Anyone can host their own copy: it just needs your own Discord bot token and an
 - Data is stored per Discord user in SQLite (`data/bot.db` by default), and
   subjects stay separate (`Math`, `English`, `Chemistry`, `Physics`, ...).
 - **`/analyze`** — upload one page image of a marked paper; the AI (via
-  OpenRouter) names the weak syllabus topics with evidence.
+  OpenRouter) names the weak syllabus topics with evidence.<br>
   Note: This function only works on **ONE** image. Analyze Paper function should be used for multiple images.
 
 Models are selected in `services/ai_client.py`: Qwen's vision model reads
