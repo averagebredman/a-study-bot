@@ -6,20 +6,24 @@ you lost marks, records them per user in SQLite, then runs short interactive
 quizzes on exactly those weak spots — and tracks how your accuracy improves
 over time.
 
-Anyone can host their own copy: it just needs your own Discord bot token and an
+Anyone can host their own copy: requires only Discord bot token and an
 [OpenRouter](https://openrouter.ai) API key. 
 
 ## Features
 
 - **"Analyze Paper"** (message context menu) — right-click any message with
   attachments and analyze all its images as one multi-page paper.
+  
 - **`/quiz`** — a 3-question quiz on your saved weak topics. Multiple-choice
   questions are answered with buttons; short/long answers are typed in chat
   and graded by AI. The expected answer is shown after each question and again
   in an end-of-quiz answer key.
+  
 - **`/stats`** — per-topic weakness counts and quiz accuracy.
+- 
 - Data is stored per Discord user in SQLite (`data/bot.db` by default), and
   subjects stay separate (`Math`, `English`, `Chemistry`, `Physics`, ...).
+  
 - **`/analyze`** — upload one page image of a marked paper; the AI (via
   OpenRouter) names the weak syllabus topics with evidence.<br>
   Note: This function only works on **ONE** image. Analyze Paper function should be used for multiple images.
@@ -37,13 +41,11 @@ called through one OpenRouter client.
      quiz answers will never arrive.
    - Under **OAuth2 → URL Generator**, select the `bot` and
      `applications.commands` scopes and the permissions **Send Messages**,
-     **Embed Links**, **Attach Files**, and **Use Application Commands**
-     (plus **View Channels**). Open the generated invite URL in a server you
+     **Embed Links**, **Attach Files**,  **View Channels** and **Use Application Commands**
+     (or just **Administrator**). Open the generated invite URL in a server you
      administer.
 2. **An OpenRouter API key** — create a free account at
-   [openrouter.ai/keys](https://openrouter.ai/keys) and copy the key. The bot
-   charges your OpenRouter balance per call.
-
+   [openrouter.ai/keys](https://openrouter.ai/keys) and copy the key.
 ## Run it yourself
 
 ### Local (Python)
@@ -112,8 +114,6 @@ With no `subject`, `/quiz` drills your most recently analyzed subject and
   [openrouter.ai/settings/credits](https://openrouter.ai/settings/credits).
 - **Image rejected** — only PNG, JPEG, and WebP photos are accepted (PDFs are
   not supported in v1); images are capped at 25 MB after resizing.
-- **Nothing is saved when I analyze** — weak topics are only recorded after you
-  press **Save** in the review step.
 
 ## Privacy
 
@@ -131,3 +131,8 @@ python -m unittest discover -s tests -v
 ```
 
 The tests need no Discord account or network access.
+
+## A note from author
+This is my first repo on GitHub and is fully created by AI. I'm just a student so there 
+may be some bugs or AI slops. Feel free to open an issue or fork it! 
+
