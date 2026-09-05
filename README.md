@@ -20,7 +20,7 @@ Anyone can host their own copy: requires only Discord bot token and an
   in an end-of-quiz answer key.
   
 - **`/stats`** — per-topic weakness counts and quiz accuracy.
-- 
+
 - Data is stored per Discord user in SQLite (`data/bot.db` by default), and
   subjects stay separate (`Math`, `English`, `Chemistry`, `Physics`, ...).
   
