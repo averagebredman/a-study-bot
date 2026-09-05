@@ -1,6 +1,6 @@
 # A Study Bot
 
-A self-hostable Discord study bot for HKDSE practice. Take a photo of an
+A self-hostable Discord study bot for practices. Take a photo of an
 **already-marked** exam paper and the bot identifies the syllabus topics where
 you lost marks, records them per user in SQLite, then runs short interactive
 quizzes on exactly those weak spots — and tracks how your accuracy improves
