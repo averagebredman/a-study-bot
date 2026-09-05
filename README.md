@@ -133,6 +133,6 @@ python -m unittest discover -s tests -v
 The tests need no Discord account or network access.
 
 ## A note from author
-This is my first repo on GitHub and is fully created by AI. I'm just a student so there 
+This is my first repo on GitHub and is fully created by AI (I shouldn't be proud of this). I'm just a student so there 
 may be some bugs or AI slops. Feel free to open an issue or fork it! 
 
